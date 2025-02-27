@@ -1,0 +1,5 @@
+*.dll
+*.exe
+*.lpi
+*.lps
+SimpleSFTP/lib
