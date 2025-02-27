@@ -23,7 +23,7 @@ var
   P: PSFTPPacketHeader;
 begin
 
-  P := Items[0];
+  P := Items[Index];
   DataLen := htonl(P^.Len) - 1 - SizeOf(DWord);
 
   FreeMem(P, SizeOf(TSFTPPacketHeader) + DataLen);
