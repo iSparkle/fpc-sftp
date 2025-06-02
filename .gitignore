@@ -2,4 +2,5 @@
 *.exe
 *.lpi
 *.lps
-SimpleSFTP/lib
+lib
+Server/Logs

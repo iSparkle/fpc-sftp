@@ -262,7 +262,7 @@ begin
   ChannelCallbacks.Size := Sizeof(TChannelCallbacks);
   ChannelCallbacks.channel_exec_request_function := @OnChannelExec; //This isn't really used
   ChannelCallbacks.channel_data_function := @OnChannelData; //New data from client triggers our function to parse it
-  ChannelCallbacks.channel_subsystem_request_function := @OnChannelSubsystemRequest; //Satisfay client that we have SFTP capability (Not clear to me what else they arrived here to find)
+  ChannelCallbacks.channel_subsystem_request_function := @OnChannelSubsystemRequest; //Satisfy client that we have SFTP capability (Not clear to me what else they arrived here to find)
   ChannelCallbacks.channel_write_wontblock_function := @OnChannelWrite; //Sending data now no longer blocks which is a horrible mess for a single-thread server. SFTP activities  are ASYNC! A read and a write may collide!
   Rc := ssh_set_channel_callbacks(Result, ChannelCallbacks);
 

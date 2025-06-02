@@ -8,7 +8,7 @@ A bare-bones minumum SFTP host written in 396 lines of code. I was able to get F
 
 SimpleSFTPServer has no mechanisms to support get/put of files or any other SFTP commands. It can only support one incoming connection at a time.
 
-Limitations: It has ugly memory issues; I've learned that the callbacks do not have a very big stack. This IS NOT DESIGNED for actual use.
+Limitations: It has ugly memory issues; I've learned that the callbacks do not have a very big heap. This IS NOT DESIGNED for actual use.
 
 === Sparkle-FTP Server ===
 

@@ -12,16 +12,20 @@ const
 
   SSH_AGAIN = -2;
 
-  SSH_AUTH_METHOD_UNKNOWN = $0000;
-  SSH_AUTH_METHOD_NONE    = $0001;
-  SSH_AUTH_METHOD_PASSWORD = $0002;
-  SSH_AUTH_METHOD_PUBLICKEY = $0004;
-  SSH_AUTH_METHOD_HOSTBASED = $0008;
-  SSH_AUTH_METHOD_INTERACTIVE = $0010;
-  SSH_AUTH_METHOD_GSSAPI_MIC = $0020;
+  SSH_AUTH_METHOD_UNKNOWN              = $0000;
+  SSH_AUTH_METHOD_NONE                 = $0001;
+  SSH_AUTH_METHOD_PASSWORD             = $0002;
+  SSH_AUTH_METHOD_PUBLICKEY            = $0004;
+  SSH_AUTH_METHOD_HOSTBASED            = $0008;
+  SSH_AUTH_METHOD_INTERACTIVE          = $0010;
+  SSH_AUTH_METHOD_GSSAPI_MIC           = $0020;
 
-  SSH_AUTH_SUCCESS = SSH_OK;
-  //SSH_AUTH_DENIED = ??;
+  SSH_AUTH_SUCCESS                     = SSH_OK;
+  SSH_AUTH_DENIED                      = 1;
+  SSH_AUTH_PARTIAL                     = 2;
+  SSH_AUTH_INFO                        = 3;
+  SSH_AUTH_AGAIN                       = 4;
+  SSH_AUTH_ERROR                       = -1;
 
   SSH_FILEXFER_TYPE_REGULAR            = 1;
   SSH_FILEXFER_TYPE_DIRECTORY          = 2;
@@ -32,6 +36,39 @@ const
   SSH_FILEXFER_TYPE_CHAR_DEVICE        = 7;
   SSH_FILEXFER_TYPE_BLOCK_DEVICE       = 8;
   SSH_FILEXFER_TYPE_FIFO               = 9;
+
+
+  SSH_FILEXFER_ATTR_SIZE               = $00000001;
+  SSH_FILEXFER_ATTR_UIDGID             = $00000002;
+  SSH_FILEXFER_ATTR_PERMISSIONS        = $00000004;
+  SSH_FILEXFER_ATTR_ACCESSTIME         = $00000008;
+  SSH_FILEXFER_ATTR_ACMODTIME          = SSH_FILEXFER_ATTR_ACCESSTIME;
+  SSH_FILEXFER_ATTR_CREATETIME         = $00000010;
+  SSH_FILEXFER_ATTR_MODIFYTIME         = $00000020;
+  SSH_FILEXFER_ATTR_ACL                = $00000040;
+  SSH_FILEXFER_ATTR_OWNERGROUP         = $00000080;
+  SSH_FILEXFER_ATTR_SUBSECOND_TIMES    = $00000100;
+  SSH_FILEXFER_ATTR_BITS               = $00000200;
+  SSH_FILEXFER_ATTR_ALLOCATION_SIZE    = $00000400;
+  SSH_FILEXFER_ATTR_TEXT_HINT          = $00000800;
+  SSH_FILEXFER_ATTR_MIME_TYPE          = $00001000;
+  SSH_FILEXFER_ATTR_LINK_COUNT         = $00002000;
+  SSH_FILEXFER_ATTR_UNTRANSLATED_NAME  = $00004000;
+  SSH_FILEXFER_ATTR_CTIME              = $00008000;
+  SSH_FILEXFER_ATTR_EXTENDED           = $80000000;
+
+  S_IRUSR                              = $0000400; //octal
+  S_IWUSR                              = $0000200;
+  S_IXUSR                              = $0000100;
+  S_IRGRP                              = $0000040;
+  S_IWGRP                              = $0000020;
+  S_IXGRP                              = $0000010;
+  S_IROTH                              = $0000004;
+  S_IWOTH                              = $0000002;
+  S_IXOTH                              = $0000001;
+  S_ISUID                              = $0004000;
+  S_ISGID                              = $0002000;
+  S_ISVTX                              = $0001000;
 
   SSH_FX_OK                            =  0;
   SSH_FX_EOF                           =  1;
@@ -63,46 +100,53 @@ const
   SSH_FX_DELETE_PENDING                = 27;
   SSH_FX_FILE_CORRUPT                  = 28;
 
-  SSH_FXP_INIT              =   1;
-  SSH_FXP_VERSION           =   2;
-  SSH_FXP_OPEN              =   3;
-  SSH_FXP_CLOSE             =   4;
-  SSH_FXP_READ              =   5;
-  SSH_FXP_WRITE             =   6;
-  SSH_FXP_LSTAT             =   7;
-  SSH_FXP_FSTAT             =   8;
-  SSH_FXP_SETSTAT           =   9;
-  SSH_FXP_FSETSTAT          =  10;
-  SSH_FXP_OPENDIR           =  11;
-  SSH_FXP_READDIR           =  12;
-  SSH_FXP_REMOVE            =  13;
-  SSH_FXP_MKDIR             =  14;
-  SSH_FXP_RMDIR             =  15;
-  SSH_FXP_REALPATH          =  16;
-  SSH_FXP_STAT              =  17;
-  SSH_FXP_RENAME            =  18;
-  SSH_FXP_READLINK          =  19;
-  SSH_FXP_LINK              =  21;
-  SSH_FXP_BLOCK             =  22;
-  SSH_FXP_UNBLOCK           =  23;
+  SSH_FXP_INIT                         =  1;
+  SSH_FXP_VERSION                      =  2;
+  SSH_FXP_OPEN                         =  3;
+  SSH_FXP_CLOSE                        =  4;
+  SSH_FXP_READ                         =  5;
+  SSH_FXP_WRITE                        =  6;
+  SSH_FXP_LSTAT                        =  7;
+  SSH_FXP_FSTAT                        =  8;
+  SSH_FXP_SETSTAT                      =  9;
+  SSH_FXP_FSETSTAT                     = 10;
+  SSH_FXP_OPENDIR                      = 11;
+  SSH_FXP_READDIR                      = 12;
+  SSH_FXP_REMOVE                       = 13;
+  SSH_FXP_MKDIR                        = 14;
+  SSH_FXP_RMDIR                        = 15;
+  SSH_FXP_REALPATH                     = 16;
+  SSH_FXP_STAT                         = 17;
+  SSH_FXP_RENAME                       = 18;
+  SSH_FXP_READLINK                     = 19;
+  SSH_FXP_LINK                         = 21;
+  SSH_FXP_BLOCK                        = 22;
+  SSH_FXP_UNBLOCK                      = 23;
 
-  SSH_FXP_REALPATH_NO_CHECK    = $00000001;
-  SSH_FXP_REALPATH_STAT_IF     = $00000002;
-  SSH_FXP_REALPATH_STAT_ALWAYS = $00000003;
+  SSH_FXP_REALPATH_NO_CHECK            = $00000001;
+  SSH_FXP_REALPATH_STAT_IF             = $00000002;
+  SSH_FXP_REALPATH_STAT_ALWAYS         = $00000003;
 
-  SSH_FXP_STATUS            = 101;
-  SSH_FXP_HANDLE            = 102;
-  SSH_FXP_DATA              = 103;
-  SSH_FXP_NAME              = 104;
-  SSH_FXP_ATTRS             = 105;
+  SSH_FXP_STATUS                       = 101;
+  SSH_FXP_HANDLE                       = 102;
+  SSH_FXP_DATA                         = 103;
+  SSH_FXP_NAME                         = 104;
+  SSH_FXP_ATTRS                        = 105;
 
-  SSH_FXP_EXTENDED          = 200;
+  SSH_FXP_EXTENDED                     = 200;
 
-  SSL_LOG_NOLOG = 0;
-  SSH_LOG_WARNING = 1;
-  SSH_LOG_PROTOCOL = 2;
-  SSH_LOG_PACKET = 3;
-  SSH_LOG_FUNCTIONS = 4;
+  SSH_FXF_READ                         = $00000001;
+  SSH_FXF_WRITE                        = $00000002;
+  SSH_FXF_APPEND                       = $00000004;
+  SSH_FXF_CREAT                        = $00000008;
+  SSH_FXF_TRUNC                        = $00000010;
+  SSH_FXF_EXCL                         = $00000020;
+
+  SSL_LOG_NOLOG                        = 0;
+  SSH_LOG_WARNING                      = 1;
+  SSH_LOG_PROTOCOL                     = 2;
+  SSH_LOG_PACKET                       = 3;
+  SSH_LOG_FUNCTIONS                    = 4;
 
 type
   TLIBSSH_API = Integer;
@@ -158,16 +202,16 @@ type
 
   //To-Do: Finish the Channel Callback definitions
   TChannelDataCallback = function(Session: PLIBSSHSESSION; Channel: PSSHChannel; Data: Pointer; Len: DWord; is_stderr: Integer; UserData: Pointer): DWord; cdecl;
-  TChannelEofCallback = function (Session: PLIBSSHSESSION; Channel: PSSHChannel; UserData: Pointer): TLIBSSH_API; cdecl;
-  SSHChannel_close_callback = procedure; cdecl;
-  SSHChannel_signal_callback = procedure; cdecl;
-  SSHChannel_exit_status_callback = procedure; cdecl;
-  SSHChannel_exit_signal_callback = procedure; cdecl;
-  SSHChannel_pty_request_callback = procedure; cdecl;
+  TChannelEofCallback = procedure(Session: PLIBSSHSESSION; Channel: PSSHChannel; UserData: Pointer); cdecl;
+  TChannelCloseCallback = procedure(Session: PLIBSSHSESSION; Channel: PSSHChannel; UserData: Pointer); cdecl;
+  TChannelSignalCallback = procedure(Session: PLIBSSHSESSION; Channel: PSSHChannel; Signal: PChar; UserData: Pointer); cdecl;
+  TChannelExitStatusCallback = procedure(Session: PLIBSSHSESSION; Channel: PSSHChannel; ExitStatus: Integer; UserData: Pointer); cdecl;
+  TChannelExitSignalCallback = procedure(Session: PLIBSSHSESSION; Channel: PSSHChannel; Signal: PChar; Core: Integer; ErrorMessage: PChar; Lang: PChar; UserData: Pointer); cdecl;
+  TChannelPtyRequestCallback = procedure(Session: PLIBSSHSESSION; Channel: PSSHChannel; Term: PChar; Width: Integer; Height: Integer; pxWidth: Integer; pwHeight: Integer; UserData: Pointer); cdecl;
   TChannelShellRequestCallback = function (Session: PLIBSSHSESSION; Channel: PSSHChannel; UserData: Pointer): TLIBSSH_API; cdecl;
-  SSHChannel_auth_agent_req_callback = procedure; cdecl;
-  SSHChannel_x11_req_callback = procedure; cdecl;
-  SSHChannel_pty_window_change_callback = procedure; cdecl;
+  SSHChannel_auth_agent_req_callback = procedure; cdecl; //TBD
+  SSHChannel_x11_req_callback = procedure; cdecl; //TBD
+  SSHChannel_pty_window_change_callback = procedure; cdecl; //TBD
   TChannelExecRequestCallback = function(Session: PLIBSSHSESSION; Channel: PSSHChannel; Command: PChar; UserData: Pointer): TLIBSSH_API; cdecl;
   TChannelEnvRequestCallback = function(Session: PLIBSSHSESSION; Channel: PSSHChannel; EnvName: PChar; EnvValue: PChar; UserData: Pointer): DWord; cdecl;
   TChannelSubsystemRequestCallback = function(Session: PLIBSSHSESSION; Channel: PSSHChannel; SubSystem: PChar; UserData: Pointer): DWord; cdecl;
@@ -180,11 +224,11 @@ type
     UserData: Pointer;
     channel_data_function: TChannelDataCallback;
     channel_eof_function: TChannelEofCallback;
-    channel_close_function: SSHChannel_close_callback;
-    channel_signal_function: SSHChannel_signal_callback;
-    channel_exit_status_function: SSHChannel_exit_status_callback;
-    channel_exit_signal_function: SSHChannel_exit_signal_callback;
-    channel_pty_request_function: SSHChannel_pty_request_callback;
+    channel_close_function: TChannelCloseCallback;
+    channel_signal_function: TChannelSignalCallback;
+    channel_exit_status_function: TChannelExitStatusCallback;
+    channel_exit_signal_function: TChannelExitSignalCallback;
+    channel_pty_request_function: TChannelPtyRequestCallback;
     channel_shell_request_function: TChannelShellRequestCallback;
     channel_auth_agent_req_function: SSHChannel_auth_agent_req_callback;
     channel_x11_req_function: SSHChannel_x11_req_callback;
@@ -197,11 +241,19 @@ type
     channel_request_response_function: TChannelRequestRespCallback;
   end;
 
+  TBindIncomingConnectionCallback = procedure(SshBind: TLIBSSH_API; UserData: Pointer); cdecl;
+
+  TBindCallbacks = packed record
+    Size: Int64;
+    IncomingConnection: TBindIncomingConnectionCallback;
+  end;
+
   function ssh_bind_accept(SshBind: TLIBSSH_API; Session: PLIBSSHSESSION ): Integer; cdecl; external 'ssh.dll';
   procedure ssh_bind_free(SshBind: TLIBSSH_API); cdecl; external 'ssh.dll';
   function ssh_bind_listen(SshBind: TLIBSSH_API): TLIBSSH_API; cdecl; external 'ssh.dll';
-  function ssh_bind_new(): TLIBSSH_API; cdecl; external 'ssh.dll';// name 'libssh2_init';
+  function ssh_bind_new(): TLIBSSH_API; cdecl; external 'ssh.dll';
   function ssh_bind_options_set(SshBind: TLIBSSH_API; fType: TSSH_bind_options_e; Value: Pointer): Integer; cdecl; external 'ssh.dll';
+  function ssh_bind_set_callbacks (SshBind: TLIBSSH_API; CB: TBindCallbacks; Userdata: Pointer): TLIBSSH_API; cdecl; external 'ssh.dll';
   function ssh_blocking_flush(Session: PLIBSSHSESSION; TimeOut: Integer): TLIBSSH_API; cdecl; external 'ssh.dll';
   function ssh_channel_close(Channel: PSSHChannel): TLIBSSH_API; cdecl; external 'ssh.dll';
   function ssh_channel_new(Session: PLIBSSHSESSION): PSSHChannel; cdecl; external 'ssh.dll';
